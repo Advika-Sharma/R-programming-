@@ -12,7 +12,7 @@ if (y > 5) {
     print("y ix less than 5")
 }
 
-#nested if statement
+#nested if statement *
 z <- 6
 if (z > 5){
     if(z > 7){
@@ -24,19 +24,19 @@ if (z > 5){
         print ("z is 5 or less than 5")
     }
 
-#while loop 
+#while loop *
 count <- 3 
 while (count <= 5) {
 print(paste("count is:", count))
 count <- count+1
 }
 
-#for loop 
-for ( i in 1:5){
+#for loop *
+for ( i in 3:5){
     print(paste("iteration:",i))
 }
 
-#break statement 
+#break statement *
 count <- 3
 while (TRUE){
     print(paste("count is:", count))
@@ -46,7 +46,7 @@ while (TRUE){
     count <- count+1 
 }
 
-#next statement 
+#next statement *
 for (i in 1:5) {
     if ( i %% 2 == 0){ #skips even nos 
         next
@@ -62,7 +62,7 @@ for (i in 1:5) {
     print(paste("even numbers:",i))
 }
 
-#switch statement 
+#switch statement *
 day <- 1 
 day_name <- switch (day ,
 "1"= "sunday",
@@ -76,7 +76,7 @@ day_name <- switch (day ,
 )
 print(day_name)
 
-#repeat loop 
+#repeat loop *
 count <- 8
 repeat {
     print(paste("repeat count", count))
