@@ -3,7 +3,7 @@
 #taking data from the system 
 library(tidyverse)
 library(readr)
-data1<-read.csv("C:\\Users\\Advika Sharma\\Desktop\\R\\PLACES__Local_Data_for_Better_Health__County_Data_2024_release.csv", header = TRUE) 
+data1<-read.csv("C:\\Users\\Advika Sharma\\Desktop\\R\\PLACES__Local_Data_for_Better_Health__County_Data_2024_release.csv", header = TRUE)  # nolint
 #head(data1)
 
 data1 <- data1[, -12]
