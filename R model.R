@@ -9,6 +9,11 @@ if (!require(caret)) {
   library(caret)
 }
 
+if (!require(ggplot2)) {
+  install.packages("ggplot2", repos = "https://cloud.r-project.org")
+  library(ggplot2)
+}
+
 # Load and check the dataset
 file_path <- "D:\\R\\cleaned_data.csv"
 
@@ -18,19 +23,18 @@ if (file.exists(file_path)) {
   health_data <- read.csv(file_path)
   print("Data loaded successfully!")
   
-  # Display the first few rows and structure of the dataset
-  print(head(health_data))
+  # Display the structure of the dataset
   str(health_data)
   
   # Ensure necessary columns exist
-  required_columns <- c("Data_Value", "Category", "StateDesc", "Measure", "TotalPopulation")
+  required_columns <- c("Data_Value", "Category", "TotalPopulation")
   
   if (all(required_columns %in% colnames(health_data))) {
     print("Required columns are present!")
     
-    # Randomly split the data into training and testing sets (70% train, 30% test)
+    # Randomly split the data into training and testing sets (80% train, 20% test)
     set.seed(123)
-    sample_index <- sample(1:nrow(health_data), 0.7 * nrow(health_data))
+    sample_index <- sample(1:nrow(health_data), 0.8 * nrow(health_data))
     
     train_data <- health_data[sample_index, ]
     test_data <- health_data[-sample_index, ]
@@ -39,7 +43,7 @@ if (file.exists(file_path)) {
     train_data <- na.omit(train_data)
     test_data <- na.omit(test_data)
     
-    # Train a Random Forest model (adjust features and target as per your dataset)
+    # Train a Random Forest model
     random_forest_model <- randomForest(Data_Value ~ Category + TotalPopulation, data = train_data, ntree = 100)
     print("Random Forest model trained successfully!")
     
@@ -48,12 +52,27 @@ if (file.exists(file_path)) {
     
     # Print model accuracy
     model_accuracy <- caret::postResample(pred = predictions, obs = test_data$Data_Value)
-    print("Model accuracy:")
+    print("Model accuracy (RMSE, Rsquared, MAE):")
     print(model_accuracy)
     
-    # Visualize the importance of features
-    importance(random_forest_model)
-    varImpPlot(random_forest_model)
+    # Create a data frame for plotting
+    plot_data <- data.frame(Index = 1:length(predictions),
+                            Actual = test_data$Data_Value,
+                            Predicted = predictions)
+    
+    # Create a Line Plot for Actual and Predicted Values
+    ggplot(plot_data, aes(x = Index)) +
+      geom_line(aes(y = Actual, color = "Actual"), size = 1, alpha = 0.8) +
+      geom_line(aes(y = Predicted, color = "Predicted"), size = 1, alpha = 0.8, linetype = "dashed") +
+      labs(title = "Actual vs Predicted Values",
+           x = "Index",
+           y = "Values") +
+      theme_minimal() +
+      scale_color_manual(values = c("Actual" = "red", "Predicted" = "blue")) +
+      theme(legend.title = element_blank(),
+            plot.title = element_text(hjust = 0.5)) +
+      geom_point(aes(y = Actual), color = "red", size = 1.5, alpha = 0.5) + 
+      geom_point(aes(y = Predicted), color = "blue", size = 1.5, alpha = 0.5)  # Adding points for clarity
     
   } else {
     print("Required columns are missing from the dataset!")
@@ -62,4 +81,6 @@ if (file.exists(file_path)) {
 } else {
   print("File not found at the specified path!")
 }
+
+print(predictions)
 
