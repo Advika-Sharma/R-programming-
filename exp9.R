@@ -10,12 +10,14 @@ ui <- fluidPage(
   tags$head(
     tags$style(HTML("
       body {
-        background-color: #0081A7; /* Deep teal background */
+        background-color: #124559; /* Set background color */
         color: #FDFCDB; /* Light cream text */
       }
       .well {
         background-color: #FED9B7; /* Peach background */
         border-color: #00AFB9; /* Light teal borders */
+        max-width: 600px; /* Make the Data Overview box wider */
+        margin: auto; /* Center the Data Overview box */
       }
       .btn-primary {
         background-color: #F07167; /* Coral pink button */
@@ -46,7 +48,11 @@ ui <- fluidPage(
         background-color: #FED9B7; /* Table background */
         color: #0081A7; /* Table text */
       }
-      h1, h3, h4 {
+      h1 {
+        color: #000000; /* Black color for main heading */
+        font-weight: bold; /* Bold text for main heading */
+      }
+      h3, h4 {
         color: #FDFCDB; /* Light cream for headers */
       }
       p {
@@ -60,7 +66,7 @@ ui <- fluidPage(
   ),
   
   # Application title with the updated color scheme
-  titlePanel(tags$h1("Health Data by State", style = "color: #FDFCDB; font-weight: bold; text-align: center;")),
+  titlePanel(tags$h1("Health Data by State", style = "text-align: center;")),
   
   sidebarLayout(
     sidebarPanel(
@@ -81,11 +87,11 @@ ui <- fluidPage(
       
       h4("Instructions:", style = "color: #000000;"), # Black text for Instructions
       tags$p("1. Select a state and category to view the corresponding data.", style = "color: #000000;"),
-      tags$p("2. Click 'Show Data' to display the filtered results.", style = "color: #000000;"),
+      tags$p("2. Click 'Show Data' to display the filtered results.", style = "color: #000000;")
     ),
     
     mainPanel(
-      # Displaying the table output with the updated palette
+      # Shift the table below the Data Overview section
       h3("Filtered Data Table", style = "color: #FDFCDB; font-weight: bold;"),
       tableOutput("table")
     )
