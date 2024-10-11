@@ -1,84 +1,112 @@
-# Load necessary libraries and check if they are installed
-if (!require(randomForest)) {
-  install.packages("randomForest", repos = "https://cloud.r-project.org")
-  library(randomForest)
+library(shiny)
+
+# Load the dataset
+data <- read.csv("D:\\R\\cleaned_data.csv")
+
+# Define UI
+ui <- fluidPage(
+  
+  # Add custom colors and style using the updated palette
+  tags$head(
+    tags$style(HTML("
+      body {
+        background-color: #0081A7; /* Deep teal background */
+        color: #FDFCDB; /* Light cream text */
+      }
+      .well {
+        background-color: #FED9B7; /* Peach background */
+        border-color: #00AFB9; /* Light teal borders */
+      }
+      .btn-primary {
+        background-color: #F07167; /* Coral pink button */
+        border-color: #F07167;
+        color: #FDFCDB; /* Light cream text on buttons */
+      }
+      .btn-primary:hover {
+        background-color: #00AFB9; /* Light teal on hover */
+        color: #FDFCDB; /* Light cream text */
+      }
+      .selectize-input, .selectize-control.single .selectize-input {
+        background-color: #800000; /* Maroon input */
+        color: #FDFCDB; /* Light cream text */
+        border-color: #00AFB9; /* Light teal border */
+      }
+      .selectize-dropdown-content .option {
+        background-color: #FED9B7; /* Dropdown background */
+        color: #0081A7; /* Dropdown text */
+      }
+      .selectize-dropdown-content .option:hover {
+        background-color: #800000; /* Maroon on hover */
+        color: #FDFCDB; /* Light cream text on hover */
+      }
+      .selectize-input::placeholder {
+        color: #FDFCDB; /* Placeholder text */
+      }
+      table {
+        background-color: #FED9B7; /* Table background */
+        color: #0081A7; /* Table text */
+      }
+      h1, h3, h4 {
+        color: #FDFCDB; /* Light cream for headers */
+      }
+      p {
+        color: #000000; /* Black for paragraph text */
+      }
+      .select-label {
+        color: #001D4A; /* Dark navy blue for labels */
+        font-weight: bold; /* Bold text for labels */
+      }
+    "))
+  ),
+  
+  # Application title with the updated color scheme
+  titlePanel(tags$h1("Health Data by State", style = "color: #FDFCDB; font-weight: bold; text-align: center;")),
+  
+  sidebarLayout(
+    sidebarPanel(
+      # Sidebar with the color scheme updates
+      h3("Data Overview", style = "color: #000000; font-weight: bold;"), # Black text for Data Overview
+      
+      # Add a custom class to the labels for styling
+      tags$label(class = "select-label", "Select State:"),
+      selectInput("state", NULL, choices = unique(data$StateDesc), 
+                  selectize = TRUE, width = "100%"),
+      
+      tags$label(class = "select-label", "Select Category:"),
+      selectInput("category", NULL, choices = unique(data$Category), 
+                  selectize = TRUE, width = "100%"),
+      
+      actionButton("show_data", "Show Data", class = "btn btn-primary"),
+      tags$hr(),
+      
+      h4("Instructions:", style = "color: #000000;"), # Black text for Instructions
+      tags$p("1. Select a state and category to view the corresponding data.", style = "color: #000000;"),
+      tags$p("2. Click 'Show Data' to display the filtered results.", style = "color: #000000;"),
+    ),
+    
+    mainPanel(
+      # Displaying the table output with the updated palette
+      h3("Filtered Data Table", style = "color: #FDFCDB; font-weight: bold;"),
+      tableOutput("table")
+    )
+  )
+)
+
+# Define Server Logic
+server <- function(input, output) {
+  
+  # Reactive expression to filter data based on state and category
+  filtered_data <- reactive({
+    req(input$show_data)  # Ensure the button is clicked
+    isolate(data[data$StateDesc == input$state & data$Category == input$category, ])
+  })
+  
+  # Display the filtered table
+  output$table <- renderTable({
+    req(filtered_data())
+    isolate(filtered_data())
+  })
 }
 
-if (!require(caret)) {
-  install.packages("caret", repos = "https://cloud.r-project.org")
-  library(caret)
-}
-
-if (!require(ggplot2)) {
-  install.packages("ggplot2", repos = "https://cloud.r-project.org")
-  library(ggplot2)
-}
-
-# Load and check the dataset
-file_path <- "D:\\R\\cleaned_data.csv"
-
-# Error handling for file existence
-if (file.exists(file_path)) {
-  # Load the data
-  health_data <- read.csv(file_path)
-  print("Data loaded successfully!")
-  
-  # Display the structure of the dataset
-  str(health_data)
-  
-  # Ensure necessary columns exist
-  required_columns <- c("Data_Value", "Category", "TotalPopulation")
-  
-  if (all(required_columns %in% colnames(health_data))) {
-    print("Required columns are present!")
-    
-    # Randomly split the data into training and testing sets (80% train, 20% test)
-    set.seed(123)
-    sample_index <- sample(1:nrow(health_data), 0.8 * nrow(health_data))
-    
-    train_data <- health_data[sample_index, ]
-    test_data <- health_data[-sample_index, ]
-    
-    # Ensure there are no missing values
-    train_data <- na.omit(train_data)
-    test_data <- na.omit(test_data)
-    
-    # Train a Random Forest model
-    random_forest_model <- randomForest(Data_Value ~ Category + TotalPopulation, data = train_data, ntree = 100)
-    print("Random Forest model trained successfully!")
-    
-    # Predict on the test data
-    predictions <- predict(random_forest_model, newdata = test_data)
-    
-    # Print model accuracy
-    model_accuracy <- caret::postResample(pred = predictions, obs = test_data$Data_Value)
-    print("Model accuracy (RMSE, Rsquared, MAE):")
-    print(model_accuracy)
-    
-    # Create a data frame for plotting
-    plot_data <- data.frame(Index = 1:length(predictions),
-                            Actual = test_data$Data_Value,
-                            Predicted = predictions)
-    
-    # Combined Bar and Line Chart
-    ggplot(plot_data, aes(x = Index)) +
-      geom_bar(aes(y = Actual, fill = "Actual"), stat = "identity", position = "dodge", width = 0.4) +
-      geom_line(aes(y = Predicted, color = "Predicted"), size = 1.2) +
-      geom_point(aes(y = Predicted, color = "Predicted"), size = 3) +
-      labs(title = "Actual vs Predicted Values",
-           x = "Index",
-           y = "Values") +
-      theme_minimal() +
-      scale_fill_manual(values = "red") +
-      scale_color_manual(values = "blue") +
-      theme(legend.title = element_blank())
-    
-  } else {
-    print("Required columns are missing from the dataset!")
-  }
-  
-} else {
-  print("File not found at the specified path!")
-}
-
-print(predictions)
+# Run the app
+shinyApp(ui = ui, server = server) 
