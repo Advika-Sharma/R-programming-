@@ -1,0 +1,63 @@
+### Steps for Creating Visualizations in Power BI:
+
+#### 1. *Importing the Dataset*
+   - Open *Power BI Desktop*.
+   - Click on *Get Data* from the Home ribbon.
+   - Select *CSV* as the file format.
+   - Import the two tables:
+     - *Product_Categories* (Product Category data).
+     - *Zone_Information* (Zone Information data).
+
+#### 2. *Data Transformation*
+   - Go to *Transform Data* in the ribbon to open Power Query Editor.
+   - In the *Zone Information* table:
+     - Perform transformations if necessary (e.g., rename columns or filter unnecessary rows).
+   - Click *Close & Apply* to save transformations and load the data back to Power BI.
+
+#### 3. *Adding a New Column*
+   - In *Data* view (the second icon on the left panel), select the *Zone_Information* table.
+   - Click on *New Column* in the ribbon.
+   - Add the following DAX formula to create a new "Year" column:
+     Power BI
+     Year = SWITCH(
+         TRUE(),
+         'Zone Information'[Zone] = "Northeast", 2020,
+         'Zone Information'[Zone] = "SouthEast", 2021,
+         'Zone Information'[Zone] = "Canada", 2022,
+         'Zone Information'[Zone] = "Midwest", 2023,
+         'Zone Information'[Zone] = "West", 2024,
+         'Zone Information'[Zone] = "SouthWest", 2025
+     )
+     
+   - Press *Enter* to create the column.
+
+#### 4. *Managing Relationships*
+   - Go to *Model View* by clicking the third icon on the left panel.
+   - Create a relationship between the *Category* column from *Product_Categories* and *Zone_Information* by dragging the *Category* field from one table to the other.
+
+#### 5. *Creating Visualizations*
+   - Switch to the *Report* view to start building the charts.
+   
+   *Pie Chart*:
+   - From the *Visualizations* pane, select the *Pie Chart* visual.
+   - Drag *Supplier* from the *Product_Categories* table into the *Legend* and *Values* fields.
+   
+   *Scatter Plot*:
+   - Select the *Scatter Chart* visual.
+   - Drag *Zone Population* (from the *Zone_Information* table) to the *X-axis*.
+   - Drag *Warranty Period (Years)* (from the *Product_Categories* table) to the *Y-axis*.
+   - Drag *Category* (from the *Product_Categories* table) into the *Legend* field.
+   
+   *Bar Chart*:
+   - Select the *Stacked Bar Chart* visual.
+   - Drag *Category* from the *Product_Categories* table into the *Axis*.
+   - Drag *Warranty Period (Years)* into the *Values*.
+   
+   *Line Chart*:
+   - Select the *Line Chart* visual.
+   - Drag *Year* (from *Zone_Information) to the **X-axis*.
+   - Drag *Zone Population* (from *Zone_Information) to the **Y-axis*.
+
+### 6. *Final Layout Adjustments*
+   - Adjust the size, position, and design of the visualizations to create a clean layout.
+   - Apply any additional formatting or filters if necessary.
