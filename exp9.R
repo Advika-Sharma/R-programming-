@@ -16,11 +16,8 @@ data <- read.csv("D:\\R\\cleaned_data.csv")
 # Define UI
 ui <- navbarPage(
   "Health Data Application",
-  
   theme = shinytheme("darkly"),
-  
   id = "main_tabs",  # Add an ID here for tab navigation
-  
   tags$head(
     tags$script(HTML("
       $(document).ready(function() {
@@ -59,30 +56,37 @@ ui <- navbarPage(
             
             h3("Introduction", style = "color: #FDFCDB; font-weight: bold; text-align: center;"),
             p(
-              "Welcome to the Health Data Prediction App, your interactive platform to explore and analyze health metrics across the United States...",
+              "Welcome to the Health Data Prediction App, your interactive platform to explore and analyze health metrics across the United States. This application provides users with insights into various health-related statistics, such as state-wise health outcomes, disease prevalence, and overall public health trends. With the power of data visualization and predictive analytics, this app allows you to make informed decisions based on the data at hand. Whether you're a healthcare professional, a policymaker, or just someone interested in learning more about public health, this platform is designed to cater to a variety of needs and offer detailed reports and visualizations.",
               style = "color: #FDFCDB; text-align: center; padding: 10px; font-size: 1.1em; line-height: 1.5;"
             ),
             p(
-              "Start exploring with interactive charts, visualizations, and tables that bring health data to life...",
+              "This app allows you to explore health data by filtering it based on different categories like state, health measures, and data value. You can also dive deeper into advanced analysis features, where more sophisticated charts and 3D visualizations await you. The ability to access real-time data and understand the implications of health indicators at both state and national levels makes this app an invaluable tool for anyone interested in public health research or policy development. The integration of both descriptive and predictive analytics helps you to draw meaningful conclusions from the data, which can influence the way health interventions are planned and executed across the country.",
+              style = "color: #FDFCDB; text-align: center; padding: 10px; font-size: 1.1em; line-height: 1.5;"
+            ),
+            p(
+              "Start exploring with interactive charts, visualizations, and tables that bring health data to life. Our goal is to make complex data sets accessible and understandable for everyone, whether you're just getting started with health data analysis or you're an expert in the field. Enjoy navigating through the platform and make data-driven decisions that can potentially impact healthcare policies and initiatives.",
               style = "color: #FDFCDB; text-align: center; padding: 10px; font-size: 1.1em; line-height: 1.5;"
             )
           )
         )
       ),
       
+      # Align the buttons in a horizontal line
       fluidRow(
-        column(12, 
-               tags$div(
-                 style = "display: flex; justify-content: center; margin-top: 30px;",
-                 actionButton("explore_button", "Start Exploring", class = "btn btn-success", style = "font-size: 1.2em; padding: 10px 20px; border-radius: 10px; background-color: #00AFB9; border: none; color: white; transition: background-color 0.3s ease;"),
-                 tags$script(HTML("
-            $('#explore_button').hover(function() {
-              $(this).css('background-color', '#008C7A');
-            }, function() {
-              $(this).css('background-color', '#00AFB9');
-            });
-          "))
-               )
+        column(2,
+               actionButton("explore_button", "Start Exploring", class = "btn btn-success", style = "font-size: 1.2em; padding: 10px 20px; border-radius: 10px; background-color: #00AFB9; border: none; color: white; transition: background-color 0.3s ease;")
+        ),
+        column(2,
+               actionButton("analysis_button", "Analysis", class = "btn btn-warning", style = "font-size: 1.2em; padding: 10px 20px; border-radius: 10px; background-color: #FFB800; border: none; color: white; transition: background-color 0.3s ease;")
+        ),
+        column(2,
+               actionButton("summary_button", "Summary", class = "btn btn-info", style = "font-size: 1.2em; padding: 10px 20px; border-radius: 10px; background-color: #5bc0de; border: none; color: white;")
+        ),
+        column(2,
+               actionButton("visualization_button", "3D Visualization", class = "btn btn-danger", style = "font-size: 1.2em; padding: 10px 20px; border-radius: 10px; background-color: #d9534f; border: none; color: white;")
+        ),
+        column(2,
+               actionButton("about_button", "About Us", class = "btn btn-secondary", style = "font-size: 1.2em; padding: 10px 20px; border-radius: 10px; background-color: #6c757d; border: none; color: white;")
         )
       )
     )
@@ -167,66 +171,94 @@ ui <- navbarPage(
     )
   ),
   
-  # About the Dataset
+  # About Page
   tabPanel(
     "About",
     fluidPage(
-      titlePanel(tags$h1("About the Dataset", style = "text-align: center; color: #FDFCDB;")),
-      wellPanel(
-        style = "background-color: #333333; border-color: #00AFB9;",
-        p("Our health dataset compiles a comprehensive set of metrics related to public health across various states in the U.S. The dataset includes valuable information on health behaviors, chronic conditions, and population statistics, gathered from various credible sources. By analyzing this dataset, you can uncover patterns and insights that reveal how different health factors are distributed across states, helping to identify at-risk populations and areas requiring more health interventions.",
-          style = "color: #FDFCDB; text-align: center; padding: 10px;"),
-        p("The dataset contains detailed measurements for health conditions such as obesity rates, smoking prevalence, diabetes rates, and more. Each data point is categorized under specific health themes, offering a granular view of the public health landscape. With this data, we hope to spark conversations around improving healthcare policy, promoting healthier lifestyles, and addressing health disparities across regions.",
-          style = "color: #FDFCDB; text-align: center; padding: 10px;"),
-        p("By engaging with this dataset, you can better understand how various health indicators vary from state to state, explore how health factors are interlinked, and ultimately help make informed decisions that improve public health outcomes.",
-          style = "color: #FDFCDB; text-align: center; padding: 10px;")
+      titlePanel(tags$h1("About the Health Data Prediction App", style = "text-align: center; color: #FDFCDB;")),
+      fluidRow(
+        column(
+          12,
+          wellPanel(
+            style = "background: linear-gradient(to right, #333333, #444444); border-color: #00AFB9; border-radius: 10px; padding: 30px;",
+            h4("Introduction", style = "color: #FDFCDB; font-weight: bold;"),
+            p("The Health Data Prediction App provides insights into healthcare metrics across the United States. This app empowers users to analyze health-related data from different perspectives, allowing for better decision-making in healthcare."),
+            h4("Features", style = "color: #FDFCDB; font-weight: bold;"),
+            tags$ul(
+              tags$li("Access a variety of health data from multiple states"),
+              tags$li("Filter data based on different categories and metrics"),
+              tags$li("Visualize data in both 2D and 3D formats"),
+              tags$li("Get quick insights using dynamic graphs and tables")
+            ),
+            h4("Developers", style = "color: #FDFCDB; font-weight: bold;"),
+            p("This app is developed by Advika Sharma and Deepak Kumawat.", style = "color: #FDFCDB;")
+          )
+        )
+      ),
+      # Add image at the end of the About page
+      fluidRow(
+        column(
+          12,
+          tags$img(src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVmHafbWZD7fa4QMRGA0zKrhY3ps8NM04Tjmi2cRlBW7V_hUZGixTSYgNVL3LZ_G6mluA&usqp=CAU", 
+                   alt = "Health Data Image", 
+                   style = "width: 100%; height: auto; border-radius: 10px; margin-top: 30px;")
+        )
       )
     )
   )
 )
 
-# Define Server Logic
+# Define Server
 server <- function(input, output, session) {
+  # Filter data based on selected state and category
+  observeEvent(input$show_data, {
+    output$table <- renderTable({
+      subset(data, StateDesc == input$state & Category == input$category)
+    })
+  })
   
+  # Render dynamic plot
+  observeEvent(input$plot_graph, {
+    output$dynamic_plot <- renderPlot({
+      plot(data[[input$x_var]], data[[input$y_var]], main = "Dynamic Plot")
+    })
+  })
+  
+  # Render 3D plot using plotly
+  observeEvent(input$plot_3D_graph, {
+    output$plot3D <- renderPlotly({
+      plot_ly(data, x = ~get(input$x_var3D), y = ~get(input$y_var3D), z = ~get(input$z_var3D), type = "scatter3d", mode = "markers")
+    })
+  })
+  
+  # Show summary
+  observeEvent(input$show_summary, {
+    output$summary <- renderPrint({
+      summary(data)
+    })
+  })
+  
+  # Button actions to navigate between tabs
   observeEvent(input$explore_button, {
-    updateTabsetPanel(session, "main_tabs", selected = "Filtered Data")  # Navigate to Filtered Data tab
+    updateTabsetPanel(session, "main_tabs", selected = "Filtered Data")
   })
   
-  filtered_data <- reactive({
-    req(input$state, input$category)
-    subset(data, StateDesc == input$state & Category == input$category)
+  observeEvent(input$analysis_button, {
+    updateTabsetPanel(session, "main_tabs", selected = "Data Summary")
   })
   
-  output$table <- renderTable({
-    req(input$show_data)
-    filtered_data()
+  observeEvent(input$summary_button, {
+    updateTabsetPanel(session, "main_tabs", selected = "Advanced Analysis")
   })
   
-  output$dynamic_plot <- renderPlot({
-    req(input$plot_graph)
-    ggplot(filtered_data(), aes_string(x = input$x_var, y = input$y_var)) + 
-      geom_bar(stat = "identity", fill = "#00AFB9") +
-      theme_minimal() +
-      labs(title = "Health Data Visualization", x = input$x_var, y = input$y_var)
+  observeEvent(input$visualization_button, {
+    updateTabsetPanel(session, "main_tabs", selected = "3D Visualization")
   })
   
-  output$summary <- renderPrint({
-    req(input$show_summary)
-    summary(data)
-  })
-  
-  output$plot3D <- renderPlotly({
-    req(input$plot_3D_graph)
-    plot_ly(
-      data = filtered_data(),
-      x = ~get(input$x_var3D),
-      y = ~get(input$y_var3D),
-      z = ~get(input$z_var3D),
-      type = "scatter3d",
-      mode = "markers"
-    )
+  observeEvent(input$about_button, {
+    updateTabsetPanel(session, "main_tabs", selected = "About")
   })
 }
 
-# Run the application
+# Run the app
 shinyApp(ui = ui, server = server)
