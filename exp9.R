@@ -19,6 +19,8 @@ ui <- navbarPage(
   
   theme = shinytheme("darkly"),
   
+  id = "main_tabs",  # Add an ID here for tab navigation
+  
   tags$head(
     tags$script(HTML("
       $(document).ready(function() {
@@ -36,21 +38,18 @@ ui <- navbarPage(
   tabPanel(
     "Welcome",
     fluidPage(
-      # Page Title with Centered Heading
       titlePanel(tags$h1("Welcome to the Health Data Prediction App", style = "text-align: center; color: #FDFCDB;")),
       
       fluidRow(
-        # First Column with Image and Description
         column(
           12, 
           wellPanel(
             style = "background: linear-gradient(to right, #333333, #444444); border-color: #00AFB9; border-radius: 10px; padding: 30px;",
             
-            # Image Section with Hover Effect
             tags$div(
               style = "display: flex; justify-content: center; align-items: center; margin-bottom: 20px;",
               tags$img(
-                src = "https://www.rishabhsoft.com/wp-content/uploads/2023/12/Banner-Image-Data-Analytics-in-Healthcare.jpg", # Add your image path here
+                src = "https://www.rishabhsoft.com/wp-content/uploads/2023/12/Banner-Image-Data-Analytics-in-Healthcare.jpg", 
                 alt = "Health Data Image",
                 style = "width: 60%; height: auto; border-radius: 10px; transition: transform 0.3s ease;",
                 onmouseover = "this.style.transform = 'scale(1.1)';", 
@@ -58,21 +57,19 @@ ui <- navbarPage(
               )
             ),
             
-            # Text Section with Introduction
             h3("Introduction", style = "color: #FDFCDB; font-weight: bold; text-align: center;"),
             p(
-              "Welcome to the Health Data Prediction App, your interactive platform to explore and analyze health metrics across the United States. This application is designed to empower you with tools to delve into vital public health data, enabling you to make informed decisions and discover trends that impact our communities. Whether you're a healthcare professional, a researcher, or someone simply interested in understanding the state of public health, this app provides a user-friendly experience to explore key health indicators and analyze how they vary across states.",
+              "Welcome to the Health Data Prediction App, your interactive platform to explore and analyze health metrics across the United States...",
               style = "color: #FDFCDB; text-align: center; padding: 10px; font-size: 1.1em; line-height: 1.5;"
             ),
             p(
-              "Start exploring with interactive charts, visualizations, and tables that bring health data to life. From analyzing data trends to uncovering insights on specific health issues, this app has something for everyone committed to enhancing public health awareness.",
+              "Start exploring with interactive charts, visualizations, and tables that bring health data to life...",
               style = "color: #FDFCDB; text-align: center; padding: 10px; font-size: 1.1em; line-height: 1.5;"
             )
           )
         )
       ),
       
-      # Add a Call to Action Section with Button and Hover Effects
       fluidRow(
         column(12, 
                tags$div(
@@ -192,7 +189,7 @@ ui <- navbarPage(
 server <- function(input, output, session) {
   
   observeEvent(input$explore_button, {
-    updateTabsetPanel(session, "tabs", selected = "Filtered Data")
+    updateTabsetPanel(session, "main_tabs", selected = "Filtered Data")  # Navigate to Filtered Data tab
   })
   
   filtered_data <- reactive({
@@ -229,7 +226,6 @@ server <- function(input, output, session) {
       mode = "markers"
     )
   })
-  
 }
 
 # Run the application
