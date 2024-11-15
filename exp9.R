@@ -1,10 +1,14 @@
-# Install shinythemes if not already installed
+# Install required packages if not already installed
 if (!requireNamespace("shinythemes", quietly = TRUE)) {
   install.packages("shinythemes")
+}
+if (!requireNamespace("plotly", quietly = TRUE)) {
+  install.packages("plotly")
 }
 
 library(shiny)
 library(shinythemes)
+library(plotly)
 
 # Load the dataset
 data <- read.csv("D:\\R\\cleaned_data.csv")
@@ -13,10 +17,22 @@ data <- read.csv("D:\\R\\cleaned_data.csv")
 ui <- navbarPage(
   "Health Data Application",
   
-  # Custom CSS for dark theme
   theme = shinytheme("darkly"),
   
-  # Page 1: Welcome Page
+  tags$head(
+    tags$script(HTML("
+      $(document).ready(function() {
+        alert('Welcome to the Health Data Prediction App!');
+      });
+      
+      $(document).on('shown.bs.tab', 'a[data-toggle=\"tab\"]', function (e) {
+        var tabText = $(e.target).text();
+        document.title = tabText + ' | Health Data Application';
+      });
+    "))
+  ),
+  
+  # Welcome Page
   tabPanel(
     "Welcome",
     fluidPage(
@@ -28,10 +44,6 @@ ui <- navbarPage(
             style = "background-color: #333333; border-color: #00AFB9;",
             h3("Introduction", style = "color: #FDFCDB; font-weight: bold; text-align: center;"),
             p("Welcome to the Health Data Prediction App, your interactive platform to explore and analyze health metrics across the United States. This application is designed to empower you with tools to delve into vital public health data, enabling you to make informed decisions and discover trends that impact our communities. Whether you're a healthcare professional, a researcher, or someone simply interested in understanding the state of public health, this app provides a user-friendly experience to explore key health indicators and analyze how they vary across states.",
-              style = "color: #FDFCDB; text-align: center; padding: 10px;"),
-            p("With this platform, you can explore a wide range of health categories, including chronic conditions, health behaviors, and other crucial metrics. You will be able to filter data based on your criteria, visualize trends through dynamic graphs, and access detailed statistical summaries for deeper insights. We aim to help you see the bigger picture and understand how different health factors are interrelated across the United States.",
-              style = "color: #FDFCDB; text-align: center; padding: 10px;"),
-            p("Let’s embark on this journey of data-driven healthcare exploration. Begin by filtering the data, analyzing the visualizations, or delving into the statistical summaries, and uncover the trends that matter most to you.",
               style = "color: #FDFCDB; text-align: center; padding: 10px;")
           )
         )
@@ -39,7 +51,7 @@ ui <- navbarPage(
     )
   ),
   
-  # Page 2: Filtered Data Table
+  # Filtered Data Table
   tabPanel(
     "Filtered Data",
     fluidPage(
@@ -47,23 +59,19 @@ ui <- navbarPage(
       sidebarLayout(
         sidebarPanel(
           h4("Select Filters", style = "color: #FDFCDB; font-weight: bold;"),
-          tags$label(class = "select-label", "Select State:"),
-          selectInput("state", NULL, choices = unique(data$StateDesc), selectize = TRUE, width = "100%"),
-          tags$label(class = "select-label", "Select Category:"),
-          selectInput("category", NULL, choices = unique(data$Category), selectize = TRUE, width = "100%"),
-          actionButton("show_data", "Show Data", class = "btn btn-primary"),
-          p("Use this page to narrow down data by selecting a state and health category. Click 'Show Data' to reveal results tailored to your choices, providing a targeted view of health statistics for that area.", style = "color: #FDFCDB; padding-top: 10px;")
+          selectInput("state", "Select State:", choices = unique(data$StateDesc), selectize = TRUE),
+          selectInput("category", "Select Category:", choices = unique(data$Category), selectize = TRUE),
+          actionButton("show_data", "Show Data", class = "btn btn-primary")
         ),
         mainPanel(
           h3("Filtered Data Table", style = "color: #FDFCDB; font-weight: bold;"),
-          p("Below is a table displaying filtered health data for the selected criteria, allowing you to see relevant insights across state and health category indicators.", style = "color: #FDFCDB; padding-top: 10px;"),
           tableOutput("table")
         )
       )
     )
   ),
   
-  # Page 3: Data Summary and Visualization
+  # Data Summary and Visualization
   tabPanel(
     "Data Summary",
     fluidPage(
@@ -71,13 +79,9 @@ ui <- navbarPage(
       sidebarLayout(
         sidebarPanel(
           h4("Graph Options", style = "color: #FDFCDB; font-weight: bold;"),
-          tags$label(class = "select-label", "Select X-Axis:"),
-          selectInput("x_var", "X-axis Variable", choices = c("StateDesc", "Category", "Measure")),
-          tags$label(class = "select-label", "Select Y-Axis:"),
-          selectInput("y_var", "Y-axis Variable", choices = c("Data_Value", "TotalPopulation")),
-          actionButton("plot_graph", "Plot Graph", class = "btn btn-primary"),
-          p("This page lets you visualize trends in the data. Select variables for the X and Y axes and click 'Plot Graph' to generate a bar chart that offers a quick, visual representation of the health data across states and categories.",
-            style = "color: #FDFCDB; padding-top: 10px;")
+          selectInput("x_var", "X-axis Variable:", choices = c("StateDesc", "Category", "Measure")),
+          selectInput("y_var", "Y-axis Variable:", choices = c("Data_Value", "TotalPopulation")),
+          actionButton("plot_graph", "Plot Graph", class = "btn btn-primary")
         ),
         mainPanel(
           h3("Graph Output", style = "color: #FDFCDB; font-weight: bold;"),
@@ -87,7 +91,7 @@ ui <- navbarPage(
     )
   ),
   
-  # Page 4: Advanced Analysis
+  # Advanced Analysis
   tabPanel(
     "Advanced Analysis",
     fluidPage(
@@ -95,8 +99,6 @@ ui <- navbarPage(
       sidebarLayout(
         sidebarPanel(
           h4("Summary Options", style = "color: #FDFCDB; font-weight: bold;"),
-          p("This page provides a statistical summary of the health dataset. Click 'Show Summary' to view a detailed breakdown of health indicators, including measures of central tendency and data spread, which give insight into health status trends across the states.",
-            style = "color: #FDFCDB; padding-top: 10px;"),
           actionButton("show_summary", "Show Summary", class = "btn btn-primary")
         ),
         mainPanel(
@@ -107,7 +109,28 @@ ui <- navbarPage(
     )
   ),
   
-  # Page 5: About the Dataset
+  # 3D Visualization
+  tabPanel(
+    "3D Visualization",
+    fluidPage(
+      titlePanel(tags$h1("3D Visualization of Health Data", style = "text-align: center; color: #FDFCDB;")),
+      sidebarLayout(
+        sidebarPanel(
+          h4("3D Graph Options", style = "color: #FDFCDB; font-weight: bold;"),
+          selectInput("x_var3D", "X-axis Variable:", choices = c("StateDesc", "Category", "Measure")),
+          selectInput("y_var3D", "Y-axis Variable:", choices = c("Data_Value", "TotalPopulation")),
+          selectInput("z_var3D", "Z-axis Variable:", choices = c("Data_Value", "TotalPopulation")),
+          actionButton("plot_3D_graph", "Plot 3D Graph", class = "btn btn-primary")
+        ),
+        mainPanel(
+          h3("3D Graph Output", style = "color: #FDFCDB; font-weight: bold;"),
+          plotlyOutput("plot3D")
+        )
+      )
+    )
+  ),
+  
+  # About the Dataset
   tabPanel(
     "About",
     fluidPage(
@@ -120,8 +143,7 @@ ui <- navbarPage(
         p("The dataset contains detailed measurements for health conditions such as obesity rates, smoking prevalence, diabetes rates, and more. Each data point is categorized under specific health themes, offering a granular view of the public health landscape. With this data, we hope to spark conversations around improving healthcare policy, promoting healthier lifestyles, and addressing health disparities across regions.",
           style = "color: #FDFCDB; text-align: center; padding: 10px;"),
         p("By engaging with this dataset, you can better understand how various health indicators vary from state to state, explore how health factors are interlinked, and ultimately help make informed decisions that improve public health outcomes.",
-          style = "color: #FDFCDB; text-align: center; padding: 10px;")
-      )
+          style = "color: #FDFCDB; text-align: center; padding: 10px;"))
     )
   )
 )
@@ -157,7 +179,23 @@ server <- function(input, output) {
       summary(data)
     })
   })
+  
+  # Page 5: Render 3D plot with plotly
+  observeEvent(input$plot_3D_graph, {
+    output$plot3D <- renderPlotly({
+      plot_ly(
+        data = data,
+        x = ~data[[input$x_var3D]],
+        y = ~data[[input$y_var3D]],
+        z = ~data[[input$z_var3D]],
+        type = "scatter3d",
+        mode = "markers",
+        marker = list(size = 3, color = "lightblue")
+      )
+    })
+  })
 }
 
 # Run the app
 shinyApp(ui = ui, server = server)
+
