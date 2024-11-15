@@ -194,15 +194,6 @@ ui <- navbarPage(
             p("This app is developed by Advika Sharma and Deepak Kumawat.", style = "color: #FDFCDB;")
           )
         )
-      ),
-      # Add image at the end of the About page
-      fluidRow(
-        column(
-          12,
-          tags$img(src = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRVmHafbWZD7fa4QMRGA0zKrhY3ps8NM04Tjmi2cRlBW7V_hUZGixTSYgNVL3LZ_G6mluA&usqp=CAU", 
-                   alt = "Health Data Image", 
-                   style = "width: 100%; height: auto; border-radius: 10px; margin-top: 30px;")
-        )
       )
     )
   )
