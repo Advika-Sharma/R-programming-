@@ -33,15 +33,17 @@ ui <- navbarPage(
           wellPanel(
             style = "background-color: #444; border-radius: 10px;",
             h3("Introduction", style = "color: #f4f4f4; text-align: center;"),
-            p("Welcome to our next-generation Health Data Prediction App! This platform provides tools to analyze, visualize, and make data-driven decisions based on U.S. state-level health data.",
+            p("Welcome to our Health Data Prediction App, a comprehensive platform designed to revolutionize the way we interact with health data. 
+               By leveraging state-of-the-art tools and intuitive visualizations, this app empowers users to explore key health indicators across various U.S. states. 
+               Our mission is to provide a resourceful gateway for health professionals, policymakers, researchers, and data enthusiasts to derive meaningful insights from public health data.",
               style = "color: #dcdcdc; text-align: justify;"),
             h4("What You Can Expect", style = "color: #f4f4f4; text-align: center;"),
             tags$ul(
               style = "color: #dcdcdc; padding-left: 20px;",
-              tags$li("Interactive filtering of health data by state and category."),
-              tags$li("Dynamic visualizations to uncover trends and correlations."),
-              tags$li("Advanced analytics for actionable insights."),
-              tags$li("3D visualizations for exploring complex relationships.")
+              tags$li("Effortless filtering of comprehensive health data by state and health-related categories."),
+              tags$li("Dynamic, interactive visualizations to uncover trends, correlations, and insights."),
+              tags$li("Advanced analytics to aid decision-making processes and strategic planning."),
+              tags$li("3D visualizations for multi-dimensional exploration of data relationships and complexities.")
             ),
             div(
               style = "text-align: center;",
@@ -86,11 +88,14 @@ ui <- navbarPage(
           selectInput("category", "Select Category:", choices = unique(data$Category), selectize = TRUE, width = "100%"),
           actionButton("show_data", "Show Data", class = "btn btn-success"),
           br(), br(),
-          p("Narrow down data by selecting a state and health category.", style = "color: #dcdcdc;")
+          p("Use the filters to narrow down the dataset based on specific states and health categories. This feature is designed for users 
+              seeking granular insights into particular regions or focus areas within public health metrics.",
+            style = "color: #dcdcdc; text-align: justify;")
         ),
         mainPanel(
           h3("Filtered Data Table", style = "color: #f4f4f4;"),
-          p("This table displays data based on the selected state and category. Use this feature to focus on specific areas of interest within the dataset.",
+          p("This table dynamically updates based on the filters you apply, providing a concise and clear view of the data you're interested in. 
+              Whether you're analyzing health trends in a single state or comparing metrics across categories, this feature helps you focus on what matters most.",
             style = "color: #dcdcdc; text-align: justify;"),
           tableOutput("table")
         )
@@ -112,7 +117,8 @@ ui <- navbarPage(
         ),
         mainPanel(
           h3("Graph Output", style = "color: #f4f4f4;"),
-          p("Visualize the relationship between two variables. The bar plot helps in understanding trends and distributions within the dataset.",
+          p("Our bar plot visualization offers an intuitive way to understand relationships and distributions in the dataset. Choose the variables you want to analyze, 
+              and let the app create a graphical representation that highlights trends, patterns, and areas of concern in public health data.",
             style = "color: #dcdcdc; text-align: justify;"),
           plotOutput("dynamic_plot")
         )
@@ -132,7 +138,8 @@ ui <- navbarPage(
         ),
         mainPanel(
           h3("Summary Output", style = "color: #f4f4f4;"),
-          p("This section provides statistical summaries of the dataset, offering insights into key metrics and their distributions.",
+          p("This section provides a comprehensive statistical summary of the dataset, including descriptive metrics such as means, medians, ranges, and standard deviations. 
+              With these insights, you can evaluate health trends and disparities with a data-driven approach.",
             style = "color: #dcdcdc; text-align: justify;"),
           verbatimTextOutput("summary")
         )
@@ -145,7 +152,8 @@ ui <- navbarPage(
     "3D Visualization",
     fluidPage(
       titlePanel(tags$h1("3D Visualization of Health Data", style = "text-align: center; color: #FDFCDB;")),
-      p("Explore complex relationships in the dataset with interactive 3D scatter plots. This visualization provides a deeper understanding of multi-dimensional data.",
+      p("This interactive 3D scatter plot enables you to explore the dataset in three dimensions, providing a unique perspective on the relationships between variables. 
+              Use this tool to uncover hidden patterns and gain a deeper understanding of the data's multi-dimensional nature.",
         style = "color: #FDFCDB; text-align: justify; padding: 10px;"),
       plotlyOutput("plotly_3d")
     )
@@ -174,13 +182,12 @@ ui <- navbarPage(
           tags$li("Data scientists creating predictive models for public health initiatives.")
         ),
         h3("Vision and Mission", style = "color: #FDFCDB; font-weight: bold; text-align: center;"),
-        p("Our mission is to empower stakeholders with meaningful insights and tools, enabling data-driven decisions for better public health outcomes.",
+        p("Our mission is to empower stakeholders with meaningful insights and tools, enabling data-driven decisions for better public health outcomes, this application is made by Advika Sharma & Deepak Kumawat",
           style = "color: #FDFCDB; padding: 10px; text-align: justify;")
       )
     )
   )
 )
-
 # Define Server Logic
 server <- function(input, output, session) {
   
