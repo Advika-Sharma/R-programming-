@@ -90,6 +90,8 @@ ui <- navbarPage(
         ),
         mainPanel(
           h3("Filtered Data Table", style = "color: #f4f4f4;"),
+          p("This table displays data based on the selected state and category. Use this feature to focus on specific areas of interest within the dataset.",
+            style = "color: #dcdcdc; text-align: justify;"),
           tableOutput("table")
         )
       )
@@ -110,6 +112,8 @@ ui <- navbarPage(
         ),
         mainPanel(
           h3("Graph Output", style = "color: #f4f4f4;"),
+          p("Visualize the relationship between two variables. The bar plot helps in understanding trends and distributions within the dataset.",
+            style = "color: #dcdcdc; text-align: justify;"),
           plotOutput("dynamic_plot")
         )
       )
@@ -128,6 +132,8 @@ ui <- navbarPage(
         ),
         mainPanel(
           h3("Summary Output", style = "color: #f4f4f4;"),
+          p("This section provides statistical summaries of the dataset, offering insights into key metrics and their distributions.",
+            style = "color: #dcdcdc; text-align: justify;"),
           verbatimTextOutput("summary")
         )
       )
@@ -139,6 +145,8 @@ ui <- navbarPage(
     "3D Visualization",
     fluidPage(
       titlePanel(tags$h1("3D Visualization of Health Data", style = "text-align: center; color: #FDFCDB;")),
+      p("Explore complex relationships in the dataset with interactive 3D scatter plots. This visualization provides a deeper understanding of multi-dimensional data.",
+        style = "color: #FDFCDB; text-align: justify; padding: 10px;"),
       plotlyOutput("plotly_3d")
     )
   ),
@@ -210,9 +218,9 @@ server <- function(input, output, session) {
     plot_ly(data, x = ~StateDesc, y = ~Data_Value, z = ~TotalPopulation,
             type = "scatter3d", mode = "markers", color = ~Category)
   })
-
-# Show a welcome popup when the app runs
-shinyjs::runjs('alert("Welcome to Health Data Analysis!")')
+  
+  # Show a welcome popup when the app runs
+  shinyjs::runjs('alert("Welcome to Health Data Analysis!")')
 }
 
 # Run the application
