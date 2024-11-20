@@ -7,6 +7,31 @@ if (!requireNamespace("shinythemes", quietly = TRUE)) install.packages("shinythe
 #install.packages("gargle")
 library(gargle)
 #install.packages("googleAuthR")  # If you plan to use googleAuthR
+# Load required library
+library(gargle)
+
+# Step 1: Delete cached credentials in the default `.secrets` folder
+if (file.exists(".secrets")) {
+  unlink(".secrets", recursive = TRUE)
+  message("Deleted local .secrets folder.")
+} else {
+  message(".secrets folder does not exist.")
+}
+
+# Step 2: Clear all tokens cached in the global gargle cache
+gargle_cache_path <- gargle::gargle_oauth_cache()
+if (dir.exists(gargle_cache_path)) {
+  unlink(gargle_cache_path, recursive = TRUE)
+  message("Deleted global gargle cache: ", gargle_cache_path)
+} else {
+  message("No global gargle cache found.")
+}
+
+# Step 3: Reset OAuth email to remove the default account setting
+options(gargle_oauth_email = NULL)
+message("Unset the default email for Google authentication.")
+
+# Restart your R session or application to apply these changes.
 
 
 # Load libraries
@@ -217,6 +242,7 @@ ui <- navbarPage(
   )
 )
 
+
 # Define Server Logic
 server <- function(input, output, session) {
   
@@ -254,6 +280,7 @@ server <- function(input, output, session) {
     plot_ly(data, x = ~StateDesc, y = ~Data_Value, z = ~TotalPopulation,
             type = "scatter3d", mode = "markers", color = ~Category)
   })
+  
   
   # Redirect "Back to Home" button to Welcome page
   observeEvent(input$btn_back_home, {
