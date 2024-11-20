@@ -10,7 +10,7 @@ library(gargle)
 # Load required library
 library(gargle)
 
-# Step 1: Delete cached credentials in the default `.secrets` folder
+# Step 1: Delete cached credentials in the default .secrets folder
 if (file.exists(".secrets")) {
   unlink(".secrets", recursive = TRUE)
   message("Deleted local .secrets folder.")
