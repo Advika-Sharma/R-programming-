@@ -2,15 +2,38 @@
 if (!requireNamespace("shinyjs", quietly = TRUE)) install.packages("shinyjs")
 if (!requireNamespace("plotly", quietly = TRUE)) install.packages("plotly")
 if (!requireNamespace("shinythemes", quietly = TRUE)) install.packages("shinythemes")
+#install.packages("googleAuthR")
+#install.packages("shiny")
+#install.packages("gargle")
+library(gargle)
+#install.packages("googleAuthR")  # If you plan to use googleAuthR
+
 
 # Load libraries
 library(shiny)
 library(shinythemes)
 library(plotly)
 library(shinyjs)
+library(googleAuthR)
 
 # Load the dataset
 data <- read.csv("D:\\R\\cleaned_data.csv")
+
+# Replace with your own Google API Client ID and Secret
+options(
+  gargle_oauth_client = gargle::gargle_oauth_client(
+    id = "YOUR_GOOGLE_CLIENT_ID",
+    secret = "YOUR_GOOGLE_CLIENT_SECRET"
+  )
+)
+
+# Set OAuth scopes (you can add more as needed)
+options(gargle_oauth_email = TRUE)
+options(gargle_oauth_cache = ".secrets")
+
+# Perform OAuth authentication
+token <- gargle::token_fetch(scopes = c("https://www.googleapis.com/auth/drive"))
+
 
 # Define UI
 ui <- navbarPage(
@@ -236,6 +259,15 @@ server <- function(input, output, session) {
   observeEvent(input$btn_back_home, {
     updateTabsetPanel(session, "navbarPage", selected = "Welcome")
   })
+  
+  
+  # Perform OAuth authentication
+  token <- gargle::token_fetch(scopes = c("https://www.googleapis.com/auth/drive"))
+  if (!is.null(token)) {
+    showNotification(paste("Authentication successful!"))
+    updateTabsetPanel(session, "navbarPage", selected = "Welcome")
+  }
+  
   
   # Show a welcome popup when the app runs
   observe({
