@@ -14,6 +14,7 @@ data <- read.csv("D:\\R\\cleaned_data.csv")
 
 # Define UI
 ui <- navbarPage(
+  id = "navbarPage",  # Add an ID to enable dynamic tab switching
   title = div(icon("heartbeat"), "Health Data Analytics"),  # Add an icon to the title
   
   # Custom dark theme
@@ -59,19 +60,19 @@ ui <- navbarPage(
     ),
     tags$script(HTML('
       $("#btn_filtered_data").on("click", function() {
-        $("a:contains(Filtered Data)").tab("show");
+        $("a:contains(\'Filtered Data\')").tab("show");
       });
       $("#btn_data_summary").on("click", function() {
-        $("a:contains(Data Summary)").tab("show");
+        $("a:contains(\'Data Summary\')").tab("show");
       });
       $("#btn_advanced_analysis").on("click", function() {
-        $("a:contains(Advanced Analysis)").tab("show");
+        $("a:contains(\'Advanced Analysis\')").tab("show");
       });
       $("#btn_3d_visual").on("click", function() {
-        $("a:contains(3D Visualization)").tab("show");
+        $("a:contains(\'3D Visualization\')").tab("show");
       });
       $("#btn_about").on("click", function() {
-        $("a:contains(About)").tab("show");
+        $("a:contains(\'About\')").tab("show");
       });
     '))
   ),
@@ -88,6 +89,7 @@ ui <- navbarPage(
           selectInput("category", "Select Category:", choices = unique(data$Category), selectize = TRUE, width = "100%"),
           actionButton("show_data", "Show Data", class = "btn btn-success"),
           br(), br(),
+          actionButton("btn_back_home", "Back to Home", class = "btn btn-secondary"),
           p("Use the filters to narrow down the dataset based on specific states and health categories. This feature is designed for users 
               seeking granular insights into particular regions or focus areas within public health metrics.",
             style = "color: #dcdcdc; text-align: justify;")
@@ -113,7 +115,8 @@ ui <- navbarPage(
           h4("Graph Options", style = "color: #f4f4f4;"),
           selectInput("x_var", "X-axis Variable:", choices = c("StateDesc", "Category", "Measure")),
           selectInput("y_var", "Y-axis Variable:", choices = c("Data_Value", "TotalPopulation")),
-          actionButton("plot_graph", "Plot Graph", class = "btn btn-info")
+          actionButton("plot_graph", "Plot Graph", class = "btn btn-info"),
+          actionButton("btn_back_home", "Back to Home", class = "btn btn-secondary")
         ),
         mainPanel(
           h3("Graph Output", style = "color: #f4f4f4;"),
@@ -134,7 +137,8 @@ ui <- navbarPage(
       sidebarLayout(
         sidebarPanel(
           h4("Options", style = "color: #f4f4f4;"),
-          actionButton("show_summary", "Show Summary", class = "btn btn-primary")
+          actionButton("show_summary", "Show Summary", class = "btn btn-primary"),
+          actionButton("btn_back_home", "Back to Home", class = "btn btn-secondary")
         ),
         mainPanel(
           h3("Summary Output", style = "color: #f4f4f4;"),
@@ -152,6 +156,7 @@ ui <- navbarPage(
     "3D Visualization",
     fluidPage(
       titlePanel(tags$h1("3D Visualization of Health Data", style = "text-align: center; color: #FDFCDB;")),
+      actionButton("btn_back_home", "Back to Home", class = "btn btn-secondary"),
       p("This interactive 3D scatter plot enables you to explore the dataset in three dimensions, providing a unique perspective on the relationships between variables. 
               Use this tool to uncover hidden patterns and gain a deeper understanding of the data's multi-dimensional nature.",
         style = "color: #FDFCDB; text-align: justify; padding: 10px;"),
@@ -188,6 +193,7 @@ ui <- navbarPage(
     )
   )
 )
+
 # Define Server Logic
 server <- function(input, output, session) {
   
@@ -226,8 +232,15 @@ server <- function(input, output, session) {
             type = "scatter3d", mode = "markers", color = ~Category)
   })
   
+  # Redirect "Back to Home" button to Welcome page
+  observeEvent(input$btn_back_home, {
+    updateTabsetPanel(session, "navbarPage", selected = "Welcome")
+  })
+  
   # Show a welcome popup when the app runs
-  shinyjs::runjs('alert("Welcome to Health Data Analysis!")')
+  observe({
+    shinyjs::runjs('alert("Welcome to Health Data Analysis!")')
+  })
 }
 
 # Run the application
