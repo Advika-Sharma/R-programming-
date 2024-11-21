@@ -134,7 +134,6 @@ ui <- navbarPage(
           selectInput("category", "Select Category:", choices = unique(data$Category), selectize = TRUE, width = "100%"),
           actionButton("show_data", "Show Data", class = "btn btn-success"),
           br(), br(),
-          actionButton("btn_back_home_filtered", "Back to Home", class = "btn btn-secondary"),
           p("Use the filters to narrow down the dataset based on specific states and health categories. This feature is designed for users 
               seeking granular insights into particular regions or focus areas within public health metrics.",
             style = "color: #dcdcdc; text-align: justify;")
@@ -161,7 +160,6 @@ ui <- navbarPage(
           selectInput("x_var", "X-axis Variable:", choices = c("StateDesc", "Category", "Measure")),
           selectInput("y_var", "Y-axis Variable:", choices = c("Data_Value", "TotalPopulation")),
           actionButton("plot_graph", "Plot Graph", class = "btn btn-info"),
-          actionButton("btn_back_home_summary", "Back to Home", class = "btn btn-secondary")
         ),
         mainPanel(
           h3("Graph Output", style = "color: #f4f4f4;"),
@@ -183,7 +181,6 @@ ui <- navbarPage(
         sidebarPanel(
           h4("Options", style = "color: #f4f4f4;"),
           actionButton("show_summary", "Show Summary", class = "btn btn-primary"),
-          actionButton("btn_back_home_advanced", "Back to Home", class = "btn btn-secondary")
         ),
         mainPanel(
           h3("Summary Output", style = "color: #f4f4f4;"),
@@ -201,7 +198,6 @@ ui <- navbarPage(
     "3D Visualization",
     fluidPage(
       titlePanel(tags$h1("3D Visualization of Health Data", style = "text-align: center; color: #FDFCDB;")),
-      actionButton("btn_back_home_3d", "Back to Home", class = "btn btn-secondary"),
       p("This interactive 3D scatter plot enables you to explore the dataset in three dimensions, providing a unique perspective on the relationships between variables. 
               Use this tool to uncover hidden patterns and gain a deeper understanding of the data's multi-dimensional nature.",
         style = "color: #FDFCDB; text-align: justify; padding: 10px;"),
@@ -313,8 +309,12 @@ server <- function(input, output, session) {
       token <- gargle::token_fetch(scopes = c("https://www.googleapis.com/auth/drive"))
       
       if (!is.null(token)) {
-        # Revoke the token on Google's servers
-        gargle::token_revoke(token)
+        # Revoke the token using Google's OAuth2 endpoint
+        httr::POST(
+          url = "https://oauth2.googleapis.com/revoke",
+          body = list(token = token$credentials$access_token),
+          encode = "form"
+        )
         showNotification("Logged out from Google account successfully!", type = "message")
       } else {
         showNotification("No active Google session found.", type = "warning")
@@ -332,8 +332,6 @@ server <- function(input, output, session) {
     updateTabsetPanel(session, "navbarPage", selected = "Login")
   })
   
-  # Redirect the user to the Login page
-  updateTabsetPanel(session, "navbarPage", selected = "Login")
   
   # Show/hide tabs based on login status
   observe({
@@ -355,30 +353,6 @@ server <- function(input, output, session) {
   })
 }
 
-
-# Observer for Filtered Data Tab
-observeEvent(input$btn_back_home_filtered, {
-  updateTabsetPanel(session, "navbarPage", selected = "Welcome")
-})
-
-# Observer for Data Summary Tab
-observeEvent(input$btn_back_home_summary, {
-  updateTabsetPanel(session, "navbarPage", selected = "Welcome")
-})
-
-# Observer for Advanced Analysis Tab
-observeEvent(input$btn_back_home_advanced, {
-  updateTabsetPanel(session, "navbarPage", selected = "Welcome")
-})
-
-# Observer for 3D Visualization Tab
-observeEvent(input$btn_back_home_3d, {
-  updateTabsetPanel(session, "navbarPage", selected = "Welcome")
-})
-
-observe({
-  session$sendCustomMessage("welcomePopup", "Welcome to Health Data Analysis!")
-})
 
 # Run the application
 shinyApp(ui = ui, server = server)
