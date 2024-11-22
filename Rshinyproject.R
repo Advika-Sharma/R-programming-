@@ -396,5 +396,3 @@ server <- function(input, output, session) {
 
 # Run the application
 shinyApp(ui = ui, server = server) 
-
-this is my r code what changes shpuld i do
