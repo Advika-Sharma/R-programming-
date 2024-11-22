@@ -4,13 +4,43 @@ if (!requireNamespace("plotly", quietly = TRUE)) install.packages("plotly")
 if (!requireNamespace("shinythemes", quietly = TRUE)) install.packages("shinythemes")
 if (!requireNamespace("gargle", quietly = TRUE)) install.packages("gargle")
 if (!requireNamespace("googleAuthR", quietly = TRUE)) install.packages("googleAuthR")
+if (!requireNamespace("DBI", quietly = TRUE)) install.packages("DBI")
+if (!requireNamespace("RSQLite", quietly = TRUE)) install.packages("RSQLite")
+if (!requireNamespace("sodium", quietly = TRUE)) install.packages("sodium")
 
+library(DBI)
+library(RSQLite)
+library(sodium)
 library(shiny)
 library(shinythemes)
 library(plotly)
 library(shinyjs)
 library(gargle)
 library(googleAuthR)
+
+# Create or connect to SQLite database
+db <- dbConnect(SQLite(), "users.db")
+
+# Create a 'users' table if it doesn't exist
+dbExecute(db, "
+  CREATE TABLE IF NOT EXISTS users (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT UNIQUE NOT NULL,
+    password_hash TEXT NOT NULL
+  )
+")
+
+# Example: Insert a test user (run this only once)
+# Hash the password using the sodium package
+test_password_hash <- sodium::password_store("password123")
+dbExecute(db, "INSERT OR IGNORE INTO users (username, password_hash) VALUES ('admin', ?)", list(test_password_hash))
+
+test_password_hash <- sodium::password_store("@123")
+dbExecute(db, "INSERT OR IGNORE INTO users (username, password_hash) VALUES ('advika', ?)", list(test_password_hash))
+
+# Close the connection
+dbDisconnect(db)
+
 
 # Replace with your Google API credentials
 options(
@@ -239,8 +269,27 @@ ui <- navbarPage(
 #Define server logic
 server <- function(input, output, session) {
   
+  
+  # Reconnect to the database
+  db <- dbConnect(SQLite(), "users.db")
+  
   # Initialize login status
   login_status <- reactiveVal(FALSE)
+  
+  # Handle username/password login
+  observeEvent(input$login_btn, {
+    # Query the database for the username
+    user <- dbGetQuery(db, "SELECT * FROM users WHERE username = ?", params = list(input$username))
+    
+    if (nrow(user) == 1 && sodium::password_verify(user$password_hash, input$password)) {
+      login_status(TRUE)
+      showNotification("Login successful!", type = "message")
+      updateTabsetPanel(session, "navbarPage", selected = "Welcome")
+    }else {
+      showNotification("Invalid username or password", type = "error")
+    }
+  })
+  
   
   # Filtered data based on inputs
   filtered_data <- reactive({
@@ -276,16 +325,7 @@ server <- function(input, output, session) {
     plot_ly(data, x = ~StateDesc, y = ~Data_Value, z = ~TotalPopulation,
             type = "scatter3d", mode = "markers", color = ~Category)
   })
-  
-  # Handle username/password login
-  observeEvent(input$login_btn, {
-    if (input$username == "admin" && input$password == "password") {  # Replace with real authentication logic
-      login_status(TRUE)
-      updateTabsetPanel(session, "navbarPage", selected = "Welcome")
-    } else {
-      showNotification("Invalid username or password", type = "error")
-    }
-  })
+
   
   # Handle Google login
   observeEvent(input$google_login_btn, {
@@ -355,4 +395,6 @@ server <- function(input, output, session) {
 
 
 # Run the application
-shinyApp(ui = ui, server = server)
+shinyApp(ui = ui, server = server) 
+
+this is my r code what changes shpuld i do
