@@ -1,72 +1,59 @@
-# Install necessary packages if not already installed
-if (!require("data.table")) install.packages("data.table")
-if (!require("dplyr")) install.packages("dplyr")
-if (!require("DBI")) install.packages("DBI")
-if (!require("dbplyr")) install.packages("dbplyr")
-if (!require("parallel")) install.packages("parallel")
-if (!require("furrr")) install.packages("furrr")  # Install furrr if missing
-if (!require("ggplot2")) install.packages("ggplot2")
-if (!require("qs")) install.packages("qs")
-if (!require("RSQLite")) install.packages("RSQLite")
+### Summary: Creating and Deploying an R Model API Using Plumber
 
-# Load libraries
-library(data.table)
-library(dplyr)
-library(DBI)
-library(dbplyr)
-library(parallel)
-library(furrr)
-library(ggplot2)
-library(qs)
-library(RSQLite)
+#### *Introduction to APIs*
+APIs (Application Programming Interfaces) enable communication between software systems. One service sends a request, and the other processes it to return a result. Common API methods include:
+- *POST*: For creating or sending data.
+- *GET*: For retrieving data.
+- *PUT*: For updating data.
+- *DELETE*: For removing data.
 
-# Step 1: Load Data Efficiently with data.table
-data <- fread("D:\\R\\cleaned_data.csv")
+APIs are structured around *endpoints, unique URLs for specific functionalities. These endpoints may require **parameters*, which are categorized as:
+- *Required*: Essential for the API to function (e.g., inputs for predictions).
+- *Optional*: Filters to refine or modify results.
 
-# Step 2: Basic Data Manipulation with data.table
-filtered_data <- data[Category == "Health" & Data_Value > 500]
-summary_data <- data[, .(mean_value = mean(Data_Value, na.rm = TRUE)), by = Category]
+#### *Training a Model in R*
+To create a production-ready API, a classification model is trained using the Iris dataset. The *Random Forest* algorithm is used to predict the species of a flower based on sepal and petal dimensions. After training, the model is saved (save(model, file = "model.RData")) so it can be used in production without retraining. This step ensures efficiency and consistency in predictions.
 
-# Step 3: Use dplyr for more manipulation
-avg_data_by_state <- data %>%
-  filter(Category == "Health") %>%
-  group_by(StateDesc) %>%
-  summarize(avg_data_value = mean(Data_Value, na.rm = TRUE))
+#### *Building the API with Plumber*
+The *Plumber* package in R allows for converting R scripts into APIs by adding structured annotations to define the API:
+- @apiTitle specifies the API name.
+- @param defines input parameters.
+- @post or @get determines the HTTP method.
+- Endpoint names (e.g., /clasificador) define specific API actions.
 
-# Step 4: Connect R to a Database
-con <- dbConnect(RSQLite::SQLite(), dbname = "large_data.db")
-dbWriteTable(con, "cleaned_data", data, overwrite = TRUE)
+A function in the API takes the user-provided inputs (e.g., petal/sepal dimensions), processes them, and returns the prediction from the saved model. For example:
+r
+function(petal_length, petal_width, sepal_length, sepal_width) {
+    load("model.RData")
+    # Process inputs and predict species
+    ...
+    predict(model, test)
+}
 
-# Querying a subset of data from the database
-db_data <- tbl(con, "cleaned_data") %>%
-  filter(Data_Value > 1000) %>%
-  collect()
+Plumber automatically generates an interactive user interface to test the API locally, enabling developers to validate its functionality.
 
-# Close the database connection after use
-dbDisconnect(con)
+#### *Deploying the API*
+The API is packaged into a *Docker container* to ensure portability and compatibility across environments. A *Dockerfile* outlines the setup:
+1. Install required R packages (e.g., randomForest).
+2. Copy the saved model and API script into the container.
+3. Configure the Plumber API to run on a specified port (e.g., 8080).
 
-# Step 5: Parallel Processing with furrr for large computations
-plan(multisession, workers = detectCores() - 1)  # Use all available cores minus one
-results <- future_map_dbl(data$Data_Value, ~ mean(.x, na.rm = TRUE))
+Using the *googleCloudRunner* R package, the Dockerized API is deployed to *Google Cloud Run*. This involves:
+1. Uploading files (API script and Dockerfile) to *Google Cloud Storage*.
+2. Building the Docker image in *Google Container Registry*.
+3. Deploying the image to Cloud Run, which generates a public URL for the API.
 
-# Step 6: Visualization of Big Data (Sampled for better performance)
-sampled_data <- data %>% sample_frac(0.1)
+#### *Testing and Usage*
+The deployed API can be accessed via its unique URL. Developers can test the API with tools like *POST requests*. For example:
+r
+response <- POST("https://api-url/clasificador", 
+                 body = list(sepal_length = 5.1, sepal_width = 3.5, 
+                             petal_length = 1.4, petal_width = 0.2))
 
-# Scatter plot with ggplot2 (using sampled data)
-ggplot(sampled_data, aes(x = TotalPopulation, y = Data_Value, color = Category)) +
-  geom_point(alpha = 0.5) +
-  theme_minimal() +
-  labs(title = "Scatter Plot of Data Value vs. Total Population",
-       x = "Total Population",
-       y = "Data Value")
+The API responds with the predicted flower species. This process ensures the API works as expected in real-world scenarios.
 
-# Step 7: Efficient Data Storage with qs
-qsave(data, "large_data.qs")
-loaded_data <- qread("large_data.qs")
+#### *Real-World Integration*
+A practical application includes integrating the API with a web form. Users input flower dimensions in an HTML form, which sends a POST request to the API. The returned prediction is displayed to the user. This setup demonstrates the power of deploying machine learning models in production.
 
-# Summary output of processing for validation
-print(head(filtered_data))
-print(summary_data)
-print(avg_data_by_state)
-print("Parallel computation results: ")
-print(head(results))
+### *Conclusion*
+By combining R, Plumber, Docker, and Google Cloud, this workflow illustrates how to train, package, deploy, and test an API for machine learning models. This approach enables seamless integration of predictive models into real-world applications, extending their utility beyond local analyses.
