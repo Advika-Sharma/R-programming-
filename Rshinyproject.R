@@ -38,6 +38,10 @@ dbExecute(db, "INSERT OR IGNORE INTO users (username, password_hash) VALUES ('ad
 test_password_hash <- sodium::password_store("@123")
 dbExecute(db, "INSERT OR IGNORE INTO users (username, password_hash) VALUES ('advika', ?)", list(test_password_hash))
 
+test_password_hash <- sodium::password_store("Deepak@162509")
+dbExecute(db, "INSERT OR IGNORE INTO users (username, password_hash) VALUES ('Deepak', ?)", list(test_password_hash))
+
+
 # Close the connection
 dbDisconnect(db)
 
